@@ -13,8 +13,25 @@ class EmployeeController extends Controller
 {
     public function index()
     {
-        $employees = Employee::with(['user', 'department'])->latest()->paginate(10);
-        return view('employees.index', compact('employees'));
+        $query = Employee::with(['user', 'department']);
+        
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                ->orWhere('email', 'like', '%' . $request->search . '%');
+            });
+        }
+        
+        // Filter by department
+        if ($request->has('department') && $request->department) {
+            $query->where('department_id', $request->department);
+        }
+        
+        $employees = $query->latest()->paginate(10);
+        $departments = Department::all();
+        
+        return view('employees.index', compact('employees', 'departments'));
     }
 
     public function create()
@@ -138,5 +155,12 @@ class EmployeeController extends Controller
         $employee->user->delete();
 
         return redirect()->route('employees.index')->with('success', 'Employee deleted successfully.');
+    }
+
+    public function getSalary(Employee $employee)
+    {
+        return response()->json([
+            'salary' => $employee->salary
+        ]);
     }
 }

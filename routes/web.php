@@ -98,6 +98,10 @@ Route::middleware(['auth'])->group(function () {
         
         // Leave index with filters
         Route::get('/leaves', [LeaveController::class, 'index'])->name('leaves.index');
+
+        Route::get('/leaves/balance/{leaveType}', [LeaveController::class, 'checkBalance'])->name('leaves.balance');
+
+        Route::get('/employees/{employee}/salary', [EmployeeController::class, 'getSalary'])->name('employees.salary');
     });
 });
 

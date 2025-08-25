@@ -152,4 +152,31 @@ class LeaveController extends Controller
 
         return redirect()->back()->with('success', 'Leave rejected successfully.');
     }
+
+    public function checkBalance(LeaveType $leaveType)
+    {
+        $user = Auth::user();
+        $employeeId = $user->isEmployee() ? $user->employee->id : request('employee_id');
+        
+        if (!$employeeId) {
+            return response()->json([
+                'available' => 0,
+                'used' => 0,
+                'total' => $leaveType->days_per_year
+            ]);
+        }
+
+        $usedDays = Leave::where('employee_id', $employeeId)
+            ->where('leave_type_id', $leaveType->id)
+            ->where('status', 'approved')
+            ->sum('days');
+
+        $availableDays = $leaveType->days_per_year - $usedDays;
+
+        return response()->json([
+            'available' => $availableDays,
+            'used' => $usedDays,
+            'total' => $leaveType->days_per_year
+        ]);
+    }
 }

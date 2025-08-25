@@ -1,0 +1,100 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Department Details') }}
+        </h2>
+    </x-slot>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                <div class="p-6 bg-white border-b border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Department Information -->
+                        <div class="md:col-span-2">
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">{{ $department->name }}</h3>
+                            <p class="text-gray-600 mb-4">{{ $department->description }}</p>
+                            
+                            <div class="grid grid-cols-2 gap-4 mb-6">
+                                <div class="bg-blue-50 p-4 rounded-lg">
+                                    <div class="text-2xl font-bold text-blue-600">{{ $department->employees_count }}</div>
+                                    <div class="text-sm text-blue-600">Total Employees</div>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg">
+                                    <div class="text-2xl font-bold text-green-600">
+                                        ${{ number_format($department->employees->avg('salary') ?? 0, 2) }}
+                                    </div>
+                                    <div class="text-sm text-green-600">Average Salary</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="space-y-4">
+                            <a href="{{ route('departments.edit', $department) }}" class="block w-full text-center btn-primary">
+                                Edit Department
+                            </a>
+                            <a href="{{ route('departments.index') }}" class="block w-full text-center btn-secondary">
+                                Back to List
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Department Employees -->
+                    <div class="mt-8">
+                        <h4 class="text-lg font-medium text-gray-900 mb-4">Employees in this Department</h4>
+                        
+                        @if($department->employees->count() > 0)
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th>Photo</th>
+                                            <th>Name</th>
+                                            <th>Position</th>
+                                            <th>Salary</th>
+                                            <th>Hire Date</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($department->employees as $employee)
+                                            <tr>
+                                                <td>
+                                                    @if($employee->photo)
+                                                        <img src="{{ asset('storage/' . $employee->photo) }}" alt="{{ $employee->user->name }}" 
+                                                             class="w-10 h-10 rounded-full object-cover">
+                                                    @else
+                                                        <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center">
+                                                            <span class="text-gray-600 text-sm">{{ substr($employee->user->name, 0, 1) }}</span>
+                                                        </div>
+                                                    @endif
+                                                </td>
+                                                <td>{{ $employee->user->name }}</td>
+                                                <td>{{ $employee->position }}</td>
+                                                <td>${{ number_format($employee->salary, 2) }}</td>
+                                                <td>{{ $employee->hire_date->format('M d, Y') }}</td>
+                                                <td>
+                                                    <a href="{{ route('employees.show', $employee) }}" class="text-blue-600 hover:text-blue-900">
+                                                        View
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        @else
+                            <div class="bg-gray-50 p-6 rounded-lg text-center">
+                                <p class="text-gray-600">No employees in this department yet.</p>
+                                <a href="{{ route('employees.create') }}" class="btn-primary mt-4 inline-block">
+                                    Add Employee
+                                </a>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-app-layout>
