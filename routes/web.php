@@ -71,6 +71,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/employee/{employee}', [ReportController::class, 'employeeReport'])->name('employee');
         });
     });
+    
 
     // Employee accessible routes
     Route::middleware(['role:employee'])->group(function () {
@@ -102,6 +103,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/leaves/balance/{leaveType}', [LeaveController::class, 'checkBalance'])->name('leaves.balance');
 
         Route::get('/employees/{employee}/salary', [EmployeeController::class, 'getSalary'])->name('employees.salary');
+
+        Route::get('/reports', function () {
+    $employees = \App\Models\Employee::with('user')->get();
+    return view('reports.index', compact('employees'));
+})->name('reports.index')->middleware(['auth', 'role:admin,hr_manager']);
     });
 });
 

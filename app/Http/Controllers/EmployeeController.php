@@ -11,10 +11,10 @@ use Illuminate\Support\Facades\Storage;
 
 class EmployeeController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $query = Employee::with(['user', 'department']);
-        
+
         // Search functionality
         if ($request->has('search') && $request->search) {
             $query->whereHas('user', function($q) use ($request) {
@@ -22,15 +22,15 @@ class EmployeeController extends Controller
                 ->orWhere('email', 'like', '%' . $request->search . '%');
             });
         }
-        
+
         // Filter by department
         if ($request->has('department') && $request->department) {
             $query->where('department_id', $request->department);
         }
-        
+
         $employees = $query->latest()->paginate(10);
         $departments = Department::all();
-        
+
         return view('employees.index', compact('employees', 'departments'));
     }
 
